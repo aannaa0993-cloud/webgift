@@ -1,125 +1,134 @@
-let selectedGiftType = 'box';
+let currentTheme = 'sakura';
+let currentGiftType = 'box';
 
-// Event Listener untuk Pilihan Kado
-document.querySelectorAll('.gift-card').forEach(card => {
-    card.addEventListener('click', function() {
-        document.querySelectorAll('.gift-card').forEach(el => el.classList.remove('selected'));
-        this.classList.add('selected');
-        selectedGiftType = this.dataset.type;
+// EVENT LISTENER TEMA WARNA
+document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentTheme = this.dataset.theme;
+        document.body.className = 'theme-' + currentTheme;
     });
 });
 
-// Ekstrak YouTube ID
-function extractYTId(url) {
+// EVENT LISTENER TIPE KADO
+document.querySelectorAll('.gift-tile').forEach(tile => {
+    tile.addEventListener('click', function() {
+        document.querySelectorAll('.gift-tile').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentGiftType = this.dataset.type;
+    });
+});
+
+// EKSTRAK YOUTUBE MUSIC ID
+function getYouTubeId(url) {
     if (!url) return '';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
+    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
     return (match && match[2].length === 11) ? match[2] : url;
 }
 
-// Generate Link Kado
+// GENERATE LINK KADO (FORM SUBMIT)
 document.getElementById('gift-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const data = {
         t: document.getElementById('toName').value.trim(),
         f: document.getElementById('fromName').value.trim(),
-        gt: selectedGiftType,
+        th: currentTheme,
+        gt: currentGiftType,
         m: document.getElementById('message').value.trim(),
         i: document.getElementById('imageUrl').value.trim(),
-        y: extractYTId(document.getElementById('youtubeUrl').value.trim())
+        y: getYouTubeId(document.getElementById('youtubeUrl').value.trim())
     };
 
-    // Encode JSON ke Base64 (Aman URL)
+    // Encode Data ke URL Hash (Base64)
     const jsonStr = JSON.stringify(data);
     const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
-
-    // Buat URL Lengkap
-    const finalUrl = window.location.origin + window.location.pathname + '#gift=' + encoded;
+    const fullUrl = window.location.origin + window.location.pathname + '#gift=' + encoded;
 
     // Tampilkan di Modal Pop-up
-    document.getElementById('generated-link').innerText = finalUrl;
+    document.getElementById('generated-link').innerText = fullUrl;
     document.getElementById('modal-overlay').classList.add('active');
 });
 
-// Tombol Copy Link
-document.getElementById('btn-copy').addEventListener('click', function() {
-    const linkText = document.getElementById('generated-link').innerText;
-    navigator.clipboard.writeText(linkText).then(() => {
-        alert('✨ Link berhasil disalin! Kirimkan ke WhatsApp atau DM.');
+// TOMBOL COPY LINK
+document.getElementById('btn-copy-link').addEventListener('click', function() {
+    const link = document.getElementById('generated-link').innerText;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('✨ Link kado berhasil disalin! Siap dikirimkan.');
         document.getElementById('modal-overlay').classList.remove('active');
     }).catch(() => {
         alert('Salin teks link di dalam kotak secara manual ya!');
     });
 });
 
-// Tombol Bikin Sendiri
-document.getElementById('btn-create-own').addEventListener('click', function() {
+// TOMBOL BIKIN SENDIRI
+document.getElementById('btn-recreate').addEventListener('click', function() {
     window.location.href = window.location.pathname;
 });
 
-// Deteksi Pembacaan Link (Viewer Screen)
+// MEMBACA LINK SAAAT DIBUKA PENERIMA
 window.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash;
     if (hash.startsWith('#gift=')) {
         try {
-            const encodedData = hash.replace('#gift=', '');
-            const jsonStr = decodeURIComponent(escape(atob(encodedData)));
+            const encoded = hash.replace('#gift=', '');
+            const jsonStr = decodeURIComponent(escape(atob(encoded)));
             const data = JSON.parse(jsonStr);
 
-            renderGiftViewer(data);
+            renderViewerScreen(data);
         } catch (err) {
-            console.error('Data Hash Error:', err);
+            console.error('Error hash parsing:', err);
         }
     }
 });
 
-function renderGiftViewer(data) {
+function renderViewerScreen(data) {
+    document.body.className = 'theme-' + (data.th || 'sakura');
     document.getElementById('builder-screen').classList.add('hidden');
     document.getElementById('viewer-screen').classList.remove('hidden');
 
-    const area = document.getElementById('interactive-box');
-    area.innerHTML = '';
+    const stage = document.getElementById('interactive-stage');
+    stage.innerHTML = '';
 
     const iconMap = {
         box: '🎁',
-        letter: '✉️',
+        envelope: '✉️',
         cake: '🎂',
         balloon: '🎈'
     };
 
     const icon = iconMap[data.gt] || '🎁';
-    area.innerHTML = `<div class="gift-anim">${icon}</div><p style="margin-top:10px; font-weight:700; color:var(--primary);">Ketuk Untuk Membuka!</p>`;
+    stage.innerHTML = `<div class="stage-icon">${icon}</div><p style="margin-top:10px; font-weight:700; color:var(--primary);">Ketuk Untuk Membuka!</p>`;
 
     // Event Klik Buka Kado
-    area.onclick = function() {
-        area.style.display = 'none';
-        document.getElementById('view-title').innerText = 'Pesan Untukmu ✨';
-        document.getElementById('view-subtitle').style.display = 'none';
+    stage.onclick = function() {
+        stage.style.display = 'none';
+        document.getElementById('view-title').innerText = 'Pesan Spesial Untukmu ✨';
+        document.getElementById('view-sub').style.display = 'none';
 
-        // Tampilkan Isi
+        // Tampilkan Isi Pesan
         document.getElementById('letter-to').innerText = `Dear ${data.t},`;
         document.getElementById('letter-text').innerText = data.m;
         document.getElementById('letter-from').innerText = `~ Dari: ${data.f}`;
 
         if (data.i) {
-            const imgEl = document.getElementById('letter-img');
-            imgEl.src = data.i;
-            imgEl.classList.remove('hidden');
+            document.getElementById('letter-img').src = data.i;
+            document.getElementById('polaroid-frame').classList.remove('hidden');
         }
 
-        document.getElementById('letter-wrapper').classList.remove('hidden');
-        document.getElementById('btn-create-own').classList.remove('hidden');
+        document.getElementById('letter-card').classList.remove('hidden');
+        document.getElementById('btn-recreate').classList.remove('hidden');
 
         // Efek Confetti
         confetti({
-            particleCount: 90,
-            spread: 65,
+            particleCount: 100,
+            spread: 70,
             origin: { y: 0.6 }
         });
     };
 
-    // Auto Play YouTube Music
+    // Auto Play Audio YouTube
     if (data.y) {
         document.getElementById('yt-player').innerHTML = 
             `<iframe width="1" height="1" src="https://www.youtube.com/embed/${data.y}?autoplay=1&loop=1" frameborder="0" allow="autoplay"></iframe>`;
