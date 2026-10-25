@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giftie 🎁 - Kado Virtual Interaktif</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Sacramento&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Terpisah -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- APP CONTAINER -->
+    <div class="card-container">
+
+        <!-- ================= HALAMAN BUILDER ================= -->
+        <div id="builder-screen">
+            <div class="header">
+                <h1><i class="fa-solid fa-gift"></i> Giftie Studio</h1>
+                <p>Buat kado virtual imut & kirim ke orang tersayang!</p>
+            </div>
+
+            <form id="gift-form">
+                <div class="form-group">
+                    <label>Untuk Siapa? (Nama Penerima)</label>
+                    <input type="text" id="toName" placeholder="Contoh: Disna / Vanesa" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Dari Siapa? (Nama Pengirim)</label>
+                    <input type="text" id="fromName" placeholder="Contoh: Nanat" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Tipe Kado Interaktif</label>
+                    <div class="gift-options">
+                        <div class="gift-card selected" data-type="box">
+                            <i class="fa-solid fa-box-archive"></i>
+                            <span>Kotak Kado</span>
+                        </div>
+                        <div class="gift-card" data-type="letter">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                            <span>Surat Cinta</span>
+                        </div>
+                        <div class="gift-card" data-type="cake">
+                            <i class="fa-solid fa-cake-candles"></i>
+                            <span>Kue Ultah</span>
+                        </div>
+                        <div class="gift-card" data-type="balloon">
+                            <i class="fa-solid fa-balloon"></i>
+                            <span>Letus Balon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Pesan Spesial</label>
+                    <textarea id="message" rows="4" placeholder="Tuliskan ucapan manis atau harapanmu di sini..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Link Foto (Opsional)</label>
+                    <input type="url" id="imageUrl" placeholder="https://i.ibb.co/xxxxx/foto.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label>Link / ID YouTube Musik (Opsional)</label>
+                    <input type="text" id="youtubeUrl" placeholder="Contoh: https://youtu.be/dQw4w9WgXcQ">
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Buat & Dapatkan Link Kado
+                </button>
+            </form>
+        </div>
+
+        <!-- ================= HALAMAN VIEWER (PENERIMA) ================= -->
+        <div id="viewer-screen" class="hidden">
+            <div class="viewer-content">
+                <h2 id="view-title">Ada Kado Spesial Untukmu! ✨</h2>
+                <p id="view-subtitle">Klik kado di bawah untuk membukanya!</p>
+
+                <!-- Animasi Interaktif Kado -->
+                <div id="interactive-box" class="interactive-area"></div>
+
+                <!-- Isi Surat & Pesan -->
+                <div id="letter-wrapper" class="letter-box hidden">
+                    <h3 id="letter-to">For You</h3>
+                    <p id="letter-text"></p>
+                    <img id="letter-img" class="img-preview hidden" src="" alt="Foto Kado">
+                    <div id="letter-from" class="letter-sender">With love</div>
+                </div>
+
+                <button id="btn-create-own" class="btn btn-secondary hidden">
+                    <i class="fa-solid fa-plus"></i> Buat Kado Kamu Sendiri
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= MODAL POPUP LINK ================= -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <h2>🎉 Link Kado Berhasil Dibuat!</h2>
+            <p>Salin link di bawah ini dan kirimkan ke dia:</p>
+            <div id="generated-link" class="link-display"></div>
+            <button id="btn-copy" class="btn btn-primary">
+                <i class="fa-solid fa-copy"></i> Salin Link Kado
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio Embed YouTube (Hidden) -->
+    <div id="yt-player" class="hidden-player"></div>
+
+    <!-- JS Terpisah -->
+    <script src="script.js"></script>
+</body>
+</html>
